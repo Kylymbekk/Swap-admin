@@ -1,57 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import React, {createContext, useEffect, useState} from 'react'
 import './App.css';
+import Auth from './components/Auth'
+import Dashboard from './screen/Dashboard'
+import {Routes, Route} from "react-router-dom";
+import SendMoney from './pages/SendMoney'
+import Well from './pages/Well'
+
+export const Context = createContext({})
 
 function App() {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null)
+  const [token, setToken] = useState(localStorage.getItem('token'))
+
+  useEffect(() => {
+    localStorage.setItem('token', token)
+  }, [token])
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user))
+    } else {
+      localStorage.removeItem('user')
+    }
+  }, [user])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <Context.Provider value={{user, setUser, token, setToken}}>
+      {user ? (
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/send" element={< SendMoney />} />
+          <Route path="/well" element={<Well />} />
+        </Routes>
+      ) : (
+        <Auth/>
+      )}
+    </Context.Provider>
   );
 }
 
